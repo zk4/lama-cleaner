@@ -587,52 +587,74 @@ if __name__ == "__main__":
     args = parse_args()
     main(args)
     # Paths to the image and mask files
-    image_path = "../searchEngine/image/261b9586.jpg"
-    mask_path = '../searchEngine/image/261b9586.mask.png'
 
-    ib = open(image_path, 'rb')
-    mb = open(mask_path, 'rb')
+    # print all images from ../acut/watermark_imgs_folder/
+    for image_path in os.listdir("../acut/watermark_imgs_folder/"):
+        if not image_path.endswith(".jpg") or image_path.endswith("mask.jpg"):
+            continue
 
-    files = {
-        'image':  ib,
-        'mask':  mb
-    }
-    form={'ldmSteps': '25',
-    'ldmSampler': 'plms',
-    'zitsWireframe': 'true',
-    'hdStrategy': 'Crop',
-    'hdStrategyCropMargin': '196',
-    'hdStrategyCropTrigerSize': '800',
-    'hdStrategyResizeLimit': '2048',
-    'prompt': '',
-    'negativePrompt': '',
-    'croperX': '284',
-    'croperY': '149',
-    'croperHeight': '512',
-    'croperWidth': '512',
-    'useCroper': 'false',
-    'sdMaskBlur': '5',
-    'sdStrength': '0.75',
-    'sdSteps': '50',
-    'sdGuidanceScale': '7.5',
-    'sdSampler': 'uni_pc',
-    'sdSeed': '-1',
-    'sdMatchHistograms': 'false',
-    'sdScale': '1',
-    'cv2Radius': '5',
-    'cv2Flag': 'INPAINT_NS',
-    'paintByExampleSteps': '50',
-    'paintByExampleGuidanceScale': '7.5',
-    'paintByExampleSeed': '-1',
-    'paintByExampleMaskBlur': '5',
-    'paintByExampleMatchHistograms': 'false',
-    'p2pSteps': '50',
-    'p2pImageGuidanceScale': '1.5',
-    'p2pGuidanceScale': '7.5',
-    'controlnet_conditioning_scale': '0.4',
-    'controlnet_method': 'control_v11p_sd15_canny'}
-    imgBytes,seed = inpaint(files,form)
-    print(type(imgBytes))
+        image_path = os.path.join("../acut/watermark_imgs_folder/",image_path)
+        print(image_path)
+        #  image_path = "../acut/watermark_imgs_folder/output_017.jpg"
+        mask_path = "tmp_mask.jpg"
+        #  mask_path = "../acut/watermark_imgs_folder/output_003.mask.jpg"
 
-    with open('inpainted_image.png', 'wb') as f:
-        f.write(imgBytes.getbuffer())
+        # get image width and height  at mask_path
+        img = cv2.imread(mask_path)
+        imgHeight, imgwidht = img.shape[:2]
+
+        ib = open(image_path, 'rb')
+        mb = open(mask_path, 'rb')
+
+        files = {
+            'image':  ib,
+            'mask':  mb
+        }
+
+        # TODO: need this . but why ,
+        # I copy it from source code
+        croperX = int((imgwidht - 512)  /2)
+        croperY = int((imgHeight - 512) /2)
+        print(croperX,croperY)
+
+        form={'ldmSteps': '25',
+        'ldmSampler': 'plms',
+        'zitsWireframe': 'true',
+        'hdStrategy': 'Crop',
+        'hdStrategyCropMargin': '196',
+        'hdStrategyCropTrigerSize': '800',
+        'hdStrategyResizeLimit': '2048',
+        'prompt': '',
+        'negativePrompt': '',
+        'croperX': croperX,
+        'croperY': croperY,
+        'croperHeight': '512',
+        'croperWidth': '512',
+        'useCroper': 'false',
+        'sdMaskBlur': '5',
+        'sdStrength': '0.75',
+        'sdSteps': '50',
+        'sdGuidanceScale': '7.5',
+        'sdSampler': 'uni_pc',
+        'sdSeed': '-1',
+        'sdMatchHistograms': 'false',
+        'sdScale': '1',
+        'cv2Radius': '5',
+        'cv2Flag': 'INPAINT_NS',
+        'paintByExampleSteps': '50',
+        'paintByExampleGuidanceScale': '7.5',
+        'paintByExampleSeed': '-1',
+        'paintByExampleMaskBlur': '5',
+        'paintByExampleMatchHistograms': 'false',
+        'p2pSteps': '50',
+        'p2pImageGuidanceScale': '1.5',
+        'p2pGuidanceScale': '7.5',
+        'controlnet_conditioning_scale': '0.4',
+        'controlnet_method': 'control_v11p_sd15_canny'}
+        imgBytes,seed = inpaint(files,form)
+        print(type(imgBytes))
+
+        image_path = image_path.replace("output","new.output")
+        with open(image_path, 'wb') as f:
+            f.write(imgBytes.getbuffer())
+        #  os.system("open './inpainted_image.png' ")
