@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 import os
-import hashlib
-
-from engineio.client import payload
 
 os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
@@ -12,7 +9,6 @@ import logging
 import multiprocessing
 import random
 import time
-from pathlib import Path
 
 import cv2
 import numpy as np
